@@ -11,7 +11,7 @@
     <input type="text" v-model.number="operand2" />
 
     = {{ result }}
-
+    <button @click="clean">Сбросить</button>
     <hr />
     <button @click="result = operand1 + operand2">+</button>
     <button @click="result = operand1 - operand2">-</button>
@@ -48,7 +48,12 @@ export default {
       this.result = op1 ** op2;
     },
     trunc(op1, op2) {
-      this.result = Math.trunc(this.operand1 / this.operand2);
+      this.result = Math.trunc(op1 / op2);
+    },
+    clean() {
+      this.operand1 = 0;
+      this.result = 0;
+      this.operand2 = 0;
     },
     changeInput(event) {
       this.message = event.target.value;
