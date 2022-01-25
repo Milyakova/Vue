@@ -17,4 +17,3 @@ export default {
 </script>
 
 <style lang="scss" scoped></style>
-© 2022 GitHub, Inc.
