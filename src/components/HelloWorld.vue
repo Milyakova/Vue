@@ -1,24 +1,52 @@
 <template>
   <div class="hello">
     <h1>{{ message }}</h1>
-    <!--
-      1-Change data
-      2-Update data
-    -->
     <!-- <input type="text" :value="message" @input="changeInput($event)"/>
     <button @click="someMethodClick" v-bind:disabled="disabled">Click</button> -->
-    <input type="text" v-model.number="operand1" />
-    <input type="text" v-model.number="operand2" />
+    <input type="text" v-model="operand1" />
+    <input type="text" v-model="operand2" />
+    = {{ result }}<br />
 
-    = {{ result }}
-    <button @click="clean">Сбросить</button>
-    <hr />
-    <button @click="result = operand1 + operand2">+</button>
-    <button @click="result = operand1 - operand2">-</button>
-    <button @click="divide">/</button>
-    <button @click="multiply(operand1, operand2)">*</button>
-    <button @click="square(operand1, operand2)">**</button>
-    <button @click="trunc(operand1, operand2)">Целочисленное деление</button>
+    {{ error }}
+
+    <button
+      v-for="(operand, idx) in operands"
+      :key="idx"
+      @click="calculate(operand)"
+    >
+      {{ operand }}</button
+    ><br />
+
+    <input type="checkbox" id="checkbox" v-model="screenKeyboard" />
+    <label for="checkbox">Отобразить экранную клавиатуру</label>
+
+    <div v-if="screenKeyboard">
+      <button
+        v-for="(keyButton, idx) in myCollection"
+        :key="idx"
+        @click="enterKeys(keyButton)"
+      >
+        {{ keyButton }}
+      </button>
+      <br />
+      <input
+        type="radio"
+        id="operand1"
+        value="operand1"
+        name="radioOperand"
+        v-model="pickedOperand"
+      />
+      <label for="operand1">Операнд 1</label>
+      <input
+        type="radio"
+        id="operand2"
+        value="operand2"
+        name="radioOperand"
+        v-model="pickedOperand"
+      />
+      <label for="operand2">Операнд 2</label>
+    </div>
+    {{ logs }}
   </div>
 </template>
 
@@ -35,26 +63,79 @@ export default {
       operand1: 0,
       operand2: 0,
       result: 0,
+      error: "",
+      myCollection: [1, 2, 3, 4, 5, 6, 7, 8, 9, "backspace"],
+      operands: ["+", "-", "/", "*"],
+      screenKeyboard: true,
+      pickedOperand: "operand1",
+      logs: {},
     };
   },
+
   methods: {
+    calculate(operation = "+") {
+      this.error = "";
+      switch (operation) {
+        case "+":
+          this.add();
+          break;
+        case "-":
+          this.subsctract();
+          break;
+        case "*":
+          this.multiply();
+          break;
+        case "/":
+          this.divide();
+          break;
+        case "**":
+          this.square();
+          break;
+        case "trunc":
+          this.trunc();
+          break;
+        default:
+          break;
+      }
+      const key = Date.now();
+      const value = `${this.operand1}${operation}${this.operand2} = ${this.result}`;
+      this.$set(this.logs, key, value);
+    },
+    add() {
+      this.result = this.operand1 + this.operand2;
+    },
+    subsctract() {
+      this.result = this.operand1 - this.operand2;
+    },
     divide() {
-      this.result = this.operand1 / this.operand2;
+      const { operand1, operand2 } = this;
+      if (operand2 === 0) {
+        this.error = "На 0 делить нельзя";
+        return;
+      }
+      this.result = operand1 / operand2;
     },
-    multiply(op1, op2) {
-      this.result = op1 * op2;
+    multiply() {
+      this.result = this.operand1 * this.operand2;
     },
-    square(op1, op2) {
-      this.result = op1 ** op2;
+    square() {
+      this.result = this.operand1 ** this.operand2;
     },
-    trunc(op1, op2) {
-      this.result = Math.trunc(op1 / op2);
+    trunc() {
+      this.result = Math.trunc(this.operand1 / this.operand2);
     },
-    clean() {
-      this.operand1 = 0;
-      this.result = 0;
-      this.operand2 = 0;
+
+    enterKeys(keyButton) {
+      if (keyButton === "backspace") {
+        keyButton = "";
+      }
+      if (this.pickedOperand === "operand1") {
+        this.operand1 = keyButton;
+      } else {
+        this.operand2 = keyButton;
+      }
     },
+
     changeInput(event) {
       this.message = event.target.value;
       console.log(event);
